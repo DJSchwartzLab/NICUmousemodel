@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("/Users/drewschwartz/Desktop/Dantas_Lab/Early_Life_Antibiotics/MasterMetaphlanprocessing"))
 
 fte_theme <- function() {
   # Generate the colors for the chart procedurally with RColorBrewer
@@ -203,9 +204,12 @@ library(readr)
 library(gtools)
 library(cowplot)
 library(ggpubr)
+library(devtools)
+  library(maaslin3)
 library(Maaslin2)
 library(maaslin3)
 library(ggExtra)
+library(PMCMRplus)
 
 # Load metadata and feature tables
 metadata <- read.delim(sep=',',"231101_MasterGFmappingfileCLEAN.csv",header=TRUE,stringsAsFactors = F)
@@ -306,6 +310,105 @@ DF_widemetafamily<-join(metadata, DF_widefamily, by = "Sample")
 DF_widemetafamily<-join(DF_widemetafamily,familyrich, by = "Sample")
 DF_longmetafamily<-join(metadata, DF_longfamily, by = "Sample")
 ```
+
+```{r}
+##Human PCOA to identify representative microbiota for use in mouse model##
+Humanmetadata<-read.delim("250925_DrewGMollyGDrewSNICUBSICHMNECmetadata_meropenemexposure.csv",sep=",")
+row.names(Humanmetadata)<-Humanmetadata$Row.names
+Combinedhumanspecies<-read.delim("Metaphlan3/251118_DrewGMollyGDrewSThanertcombined.csv",sep=",")
+Combinedhumanspecies$Row.names<-Combinedhumanspecies$Sample
+row.names(Combinedhumanspecies)<-Combinedhumanspecies$Row.names
+Combinedhumanspecies$X<-NULL
+Combinedhumanspecies$Sample<-NULL
+
+#Subset to samples in first month of life
+Humanmetadataunder30DOL<-subset(Humanmetadata,DOL<=30)
+Humanmetadataunder30DOLspecies<-join(Humanmetadataunder30DOL,Combinedhumanspecies, by="Row.names")
+row.names(Humanmetadataunder30DOLspecies)<-Humanmetadataunder30DOLspecies$Row.names
+Humanmetadataunder30DOLspeciesclean<-Humanmetadataunder30DOLspecies[,-c(1:16)]
+Humanmetadataunder30DOLspeciesclean<-Humanmetadataunder30DOLspeciesclean[, colSums(Humanmetadataunder30DOLspeciesclean) !=0]
+#Now to perform a PCOA on these data#
+BrayDFhumanless30 <-vegdist(Humanmetadataunder30DOLspeciesclean, method = "bray")
+pco.brayDFhumanless30<-labdsv::pco(BrayDFhumanless30, k=4)
+BrayDFhumanless30<-as.data.frame(pco.brayDFhumanless30$points)
+BrayDFhumanless30$Row.names<-row.names(BrayDFhumanless30)
+Humanmetadataunder30DOLspeciesclean$Row.names<-row.names(Humanmetadataunder30DOLspeciesclean)
+pco.brayDFhumanless30meta<-join(BrayDFhumanless30,Humanmetadataunder30DOLspeciesclean, by="Row.names")
+
+#Eigenvalues
+EigenBrayDFhumanless30<-rbind(SD = sqrt(pco.brayDFhumanless30$eig),Proportion = pco.brayDFhumanless30$eig/sum(pco.brayDFhumanless30$eig),Cumulative = cumsum(pco.brayDFhumanless30$eig)/sum(pco.brayDFhumanless30$eig))
+#V1 = 22%
+#V2 = 16%
+
+#add on dominant genera as a feature to have a color in the PCOA
+
+pco.brayDFhumanless30meta |> dplyr::mutate(Dominant_genus = 
+                                        case_when(Escherichia_coli + 
+                                                    Escherichia_marmotae + 
+                                                    Escherichia_sp_ESNIH1 > 50 ~ "Escherichia",
+                                                  Klebsiella_aerogenes + 
+                                                    Klebsiella_michiganensis + 
+                                                    Klebsiella_oxytoca + 
+                                                    Klebsiella_pneumoniae + 
+                                                    Klebsiella_quasipneumoniae + 
+                                                    Klebsiella_variicola + 
+                                                    Klebsiella_variicola_CAG_634 + 
+                                                    Klebsiella_grimontii > 50 ~ "Klebsiella",
+                                                  Enterococcus_avium + 
+                                                    Enterococcus_faecalis + 
+                                                    Enterococcus_faecium +  
+                                                    Enterococcus_gallinarum + 
+                                                    Enterococcus_italicus +  
+                                                    Enterococcus_raffinosus + 
+                                                    Enterococcus_casseliflavus + 
+                                                    Enterococcus_malodoratus > 50 ~ "Enterococcus",
+                                                  Staphylococcus_argenteus + 
+                                                    Staphylococcus_aureus + 
+                                                    Staphylococcus_capitis + 
+                                                    Staphylococcus_caprae + 
+                                                    Staphylococcus_epidermidis + 
+                                                    Staphylococcus_haemolyticus + 
+                                                    Staphylococcus_hominis + 
+                                                    Staphylococcus_lugdunensis + 
+                                                    Staphylococcus_pasteuri + 
+                                                    Staphylococcus_pettenkoferi + 
+                                                    Staphylococcus_warneri + 
+                                                    Staphylococcus_simulans > 50 ~ "Staphylococcus",
+                                                  Bifidobacterium_adolescentis + 
+                                                    Bifidobacterium_bifidum + 
+                                                    Bifidobacterium_breve +
+                                                    Bifidobacterium_dentium + 
+                                                    Bifidobacterium_longum + 
+                                                    Bifidobacterium_pseudocatenulatum + 
+                                                    Bifidobacterium_adolescentis + 
+                                                    Bifidobacterium_catenulatum + 
+                                                    Bifidobacterium_scardovii + 
+                                                    Bifidobacterium_kashiwanohense + 
+                                                    Bifidobacterium_pseudolongum > 50 ~ "Bifidobacterium",
+                                                  .default = "Diverse"), .after = Row.names) -> pco.brayDFhumanless30meta_wDominant
+
+ggplot(pco.brayDFhumanless30meta_wDominant, aes(x=V1, y=V2, color=Dominant_genus)) + geom_point(size=2)+
+  theme_bw()+theme(legend.text=element_text(size=12, face="bold"),legend.title=element_text(size=14, face="bold"),
+        panel.grid.minor = element_blank(), panel.border = element_rect(colour = "black"), 
+        axis.text.x= element_text(size=12,angle=45,hjust=1,vjust=1,face="bold"),
+        axis.text.y= element_text(size=12,face="bold"))+scale_fill_manual(values=genuscolors)+
+  ylab("PCO2 (16%)")+
+  xlab("PCO1 (22%)") 
+
+#Add mouse microbiota A thru D as a designation
+humanmousePCOAlessthan30meta<-read.delim("260109humanlessthan30withmouse.csv",sep=",")
+
+ggplot(humanmousePCOAlessthan30meta, aes(x=V1, y=V2, color=Dominant_genus)) + geom_point(size=1)+
+  theme_bw()+theme(legend.text=element_text(size=12, face="bold"),legend.title=element_text(size=14, face="bold"),
+        panel.grid.minor = element_blank(), panel.border = element_rect(colour = "black"), 
+        axis.text.x= element_text(size=12,angle=45,hjust=1,vjust=1,face="bold"),
+        axis.text.y= element_text(size=12,face="bold"))+scale_color_manual(values=genuscolors)+geom_point(data = subset(humanmousePCOAlessthan30meta, Microbiota %in% c("A", "B", "C","D")),
+             , size =5)+
+  ylab("PCO2 (16%)")+
+  xlab("PCO1 (22%)")
+ggsave(file="/Users/schwartzd/Desktop/Dantas_Lab/Early_Life_Antibiotics/Pooled Figures/260111_humanmicrobiotalessthan30mousemicrobiota.pdf")
+```
+
 
 ```{r}
 #subset out based on experiment
@@ -860,6 +963,7 @@ DF_widemetaspeciesinocDOL10$uniqID<-paste(DF_widemetaspeciesinocDOL10$Microbiota
 DF_widemetaspeciesinocDOL10=DF_widemetaspeciesinocDOL10[which(!DF_widemetaspeciesinocDOL10$Experiment %in% c("GF15","GF17")),]
 DF_widemetaspeciesinocDOL10<-DF_widemetaspeciesinocDOL10[!grepl("after", DF_widemetaspeciesinocDOL10$Abx_relativeinfxn), ]
 DF_widemetaspeciesinocDOL10<-subset(DF_widemetaspeciesinocDOL10, Tissue=="stool"|Tissue=="INOC")
+DF_widemetaspeciesinocDOL10=DF_widemetaspeciesinocDOL10[which(DF_widemetaspeciesinocDOL10$Microbiota %in% c("A","B","C","D")),]
 DF_widemetaspeciesinocDOL10A<-subset(DF_widemetaspeciesinocDOL10, Microbiota=="A")
 
 ggplot(DF_widemetaspeciesinocDOL10A, aes(x=uniqID, y=speciesrichness, color=DOL)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.1))+ ggtitle("Richness")+xlab("microbiota")+ylab("Richness") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.text.x = element_text(size=16), axis.title.x=element_text(size=20), axis.title.y = element_text(size=20), axis.text.y = element_text(size=16), axis.title = element_text(size=24))+scale_x_discrete(limits=c("A_INOC","A_10"))+my_theme()
@@ -879,6 +983,47 @@ quantile(DF_widemetaspeciesDOL10Aonly$speciesrichness)
 quantile(DF_widemetaspeciesDOL10Aonly$shannon)
 #        0%       25%       50%       75%      100% 
 # 0.0000000 0.1744341 0.4109280 0.8367804 1.5505805 
+
+#plot all microbiota A-D Richness and Diversity inoc and DOL10
+ggplot(DF_widemetaspeciesinocDOL10, aes(x=uniqID, y=speciesrichness, color=DOL)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.5))+ ggtitle("Richness")+xlab("microbiota")+ylab("Richness") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.text.x = element_text(size=16), axis.title.x=element_text(size=20), axis.title.y = element_text(size=20), axis.text.y = element_text(size=16), axis.title = element_text(size=24))+scale_x_discrete(limits=c("A_INOC","A_10","B_INOC","B_10","C_INOC","C_10","D_INOC","D_10"))
+ggsave(file="/Users/schwartzd/Desktop/Dantas_Lab/Early_Life_Antibiotics/Pooled Figures/260201_MicroABCDinocDOL10Richness.pdf")
+
+kwAllPairsDunnTest(speciesrichness~as.factor(uniqID), data = DF_widemetaspeciesinocDOL10, p.adjust.method = "BH")
+#        A_10    A_INOC  B_10    B_INOC  C_10    C_INOC  D_10   
+# A_INOC 0.00013 -       -       -       -       -       -      
+# B_10   0.97027 0.00013 -       -       -       -       -      
+# B_INOC 1.5e-05 0.97027 1.5e-05 -       -       -       -      
+# C_10   2.3e-05 8.1e-09 1.5e-05 2.3e-10 -       -       -      
+# C_INOC 0.34214 0.00609 0.34214 0.00472 0.72694 -       -      
+# D_10   0.12746 1.5e-05 0.11282 2.6e-06 0.03695 0.66519 -      
+# D_INOC 0.09611 0.54166 0.09611 0.52598 0.00093 0.06738 0.02960
+
+ggplot(DF_widemetaspeciesinocDOL10, aes(x=uniqID, y=shannon, color=DOL)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.5))+ ggtitle("Shannon Diversity")+xlab("microbiota")+ylab("Shannon Diversity") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.text.x = element_text(size=16), axis.title.x=element_text(size=20), axis.title.y = element_text(size=20), axis.text.y = element_text(size=16), axis.title = element_text(size=24))+scale_x_discrete(limits=c("A_INOC","A_10","B_INOC","B_10","C_INOC","C_10","D_INOC","D_10"))
+ggsave(file="/Users/schwartzd/Desktop/Dantas_Lab/Early_Life_Antibiotics/Pooled Figures/260201_MicroABCDinocDOL10Shannon.pdf")
+
+kwAllPairsDunnTest(shannon~as.factor(uniqID), data = DF_widemetaspeciesinocDOL10, p.adjust.method = "BH")
+#        A_10    A_INOC  B_10    B_INOC  C_10    C_INOC  D_10   
+# A_INOC 4.3e-05 -       -       -       -       -       -      
+# B_10   0.01310 0.00176 -       -       -       -       -      
+# B_INOC 3.0e-07 0.76287 3.4e-05 -       -       -       -      
+# C_10   0.00539 2.0e-07 9.5e-06 4.4e-10 -       -       -      
+# C_INOC 0.42902 0.24479 0.76287 0.15973 0.09350 -       -      
+# D_10   0.00490 0.03972 0.17903 0.00539 6.4e-06 0.95405 -      
+# D_INOC 0.00860 0.95405 0.04551 0.76287 0.00028 0.33199 0.17685
+
+group_means <- DF_widemetaspeciesinocDOL10 %>%
+  group_by(uniqID) %>%
+  summarise(
+    mean_value=mean(speciesrichness, na.rm=TRUE)
+  )
+print(group_means)
+
+group_medians <- DF_widemetaspeciesinocDOL10 %>%
+  group_by(uniqID) %>%
+  summarise(
+    median_value=median(speciesrichness, na.rm=TRUE)
+  )
+print(group_medians)
 
 #PLot microA inoc and pups over time (PBS treatment is OK)
 MicroAwidespeciespupINOC<-subset(MicroAwidespecies, Tissue=="stool"|Tissue=="INOC")
@@ -2312,7 +2457,7 @@ MicroABCDDOL10INOCMeta<-MicroABCDDOL10INOCMeta[!grepl("GF17", MicroABCDDOL10INOC
 MicroABCDDOL10INOCMeta<-subset(MicroABCDDOL10INOCMeta, Tissue=="INOC"|Tissue=="stool")
 MicroABCDDOL10INOCMeta<-MicroABCDDOL10INOCMeta[!duplicated(MicroABCDDOL10INOCMeta$Sample),]
 .rowNamesDF(MicroABCDDOL10INOCMeta)<-MicroABCDDOL10INOCMeta$Sample
-write.csv(BrayDFABCDmeta)
+# write.csv(BrayDFABCDmeta)
 #remove non-microbial columns to run PCoA
 Bray<-MicroABCDDOL10INOCMeta[-c(1:39)]
 Bray$shannon<-NULL
@@ -2324,7 +2469,7 @@ BrayDFABCD<-as.data.frame(pco.brayDF$points)
 BrayDFABCD$Sample<-row.names(BrayDFABCD)
 BrayDFABCDmeta<-join(BrayDFABCD,MicroABCDDOL10INOCMeta, by="Sample")
 BrayDFABCD$Sample<-NULL
-write.csv(BrayDFABCDmeta,file ='/Users/drewschwartz/Desktop/Dantas_Lab/Early_Life_Antibiotics/MasterMetaphlanprocessing/BrayDFABCDmeta.csv')
+# write.csv(BrayDFABCDmeta,file ='/Users/drewschwartz/Desktop/Dantas_Lab/Early_Life_Antibiotics/MasterMetaphlanprocessing/BrayDFABCDmeta.csv')
 #Eigenvalues
 EigenBrayDFABCD<-rbind(SD = sqrt(pco.brayDF$eig),Proportion = pco.brayDF$eig/sum(pco.brayDF$eig),Cumulative = cumsum(pco.brayDF$eig)/sum(pco.brayDF$eig))
 #V1 = 28.5%
@@ -2341,7 +2486,7 @@ a<-ggplot(BrayDFABCDmeta, aes(x=V1, y=V2, color=Microbiota, shape=as.factor(Tiss
   ylab("PCO2 (21.5%)")+
   xlab("PCO1 (28.5%)") 
 ggMarginal(a, type="boxplot", groupColour = TRUE, groupFill = TRUE, size = 5)
-ggsave(file="/Users/drewschwartz/Desktop/Dantas_Lab/Early_Life_Antibiotics/Pooled Figures/251016_BrayPCoAABCD.pdf") 
+ggsave(file="figures/251016_BrayPCoAABCD.pdf") 
 
 BrayDFABCDmeta$Description<-paste(BrayDFABCDmeta$Microbiota,BrayDFABCDmeta$Tissue,sep="_")
 
@@ -2406,7 +2551,7 @@ b<-ggplot(BrayDFABCDFammeta, aes(x=V1, y=V2, color=Microbiota, shape=as.factor(T
   ylab("PCO2 (17.9%)")+
   xlab("PCO1 (58.4%)") 
 ggMarginal(b, type="boxplot", groupColour = TRUE, groupFill = TRUE, size = 5)
-ggsave(file="/Users/drewschwartz/Desktop/Dantas_Lab/Early_Life_Antibiotics/Pooled Figures/251016_BrayPCoAABCDFamily.pdf") 
+ggsave(file="figures/251016_BrayPCoAABCDFamily.pdf") 
 
 BrayDFABCDFammeta$Description<-paste(BrayDFABCDFammeta$Microbiota,BrayDFABCDFammeta$Tissue,sep="_")
 
