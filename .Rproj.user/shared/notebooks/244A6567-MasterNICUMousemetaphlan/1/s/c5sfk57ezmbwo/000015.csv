@@ -1,0 +1,4 @@
+"0","ggplot(MicroABlonggenusDOL10aveother, aes(uniqID, normalabundance, fill=taxa)) + geom_bar(stat = ""identity"", position=""stack"")+ theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_fill_manual(values=genuscolors)
+"
+"2","Error: object 'MicroABlonggenusDOL10aveother' not found
+"

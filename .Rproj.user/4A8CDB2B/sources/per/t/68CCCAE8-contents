@@ -1,0 +1,418 @@
+---
+title: "NICUMouse-figures_v1_KB"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+source("MasterNICUMousemetaphlan_v3_KB.r")
+
+
+theme_plot <- function() {
+  
+  color.background = "white"
+  color.grid.major = "grey30"
+  color.grid.minor = "grey60"
+  color.axis.text = "black"
+  color.axis.title = "black"
+  color.title = "black"
+  
+  # Begin construction of chart
+  theme_cowplot() +
+    ggplot2::theme( 
+      #text = element_text(family = "Arial", size=6),
+      line = element_line(size=1) #0.3
+    ) +
+    
+    # Format the legend, hide by default
+    ggplot2::theme(  
+      #legend.position    = "none",
+      legend.margin      = margin(4, 4, 4, 4),
+      legend.key.size    = unit(8, "pt"),
+      legend.box.spacing = unit(4, "pt"),
+      legend.text        = element_text(size=6, color = color.axis.title),
+      legend.title       = element_text(size=8)
+    ) +
+    
+    # Set axis labels, text and format tick marks
+    ggplot2::theme(  
+      axis.text          = element_text(size=6),
+      #axis.text.x       = element_text(size=6, angle=0, vjust=0.5, hjust=1), #, hjust=1, vjust=0.5
+      #axis.text.y        = element_text(size=6, angle=0, color=color.axis.text, margin = margin(0, 1, 0, 0)),
+      axis.text.x.top    = element_text(margin = margin(0, 0, 1, 0)),
+      axis.text.y.right  = element_text(margin = margin(0, 0, 0, 1)),
+      axis.ticks         = element_line(size=0.5),
+      axis.ticks.length  = unit(3, "pt"),
+      
+      #axis.line          = element_line(size=1),
+      #axis.line.x        = element_line(size=1),
+      #axis.line.y        = element_line(size=1),
+      panel.border       = element_blank(), #element_rect(colour = "black", fill=NA, size=1),
+      
+      axis.title         = element_text(size=8, face="bold", color = color.axis.title),
+      axis.title.x.top   = element_text(margin = margin(0, 0, 2, 0)),
+      axis.title.y.right = element_text(margin = margin(0, 0, 0, 2)),
+      axis.title.x       = element_text(),
+      axis.title.y       = element_text() #margin = margin(0, 1, 0, 0.5), vjust=1.25
+    ) +
+    
+    # Format facet heading
+    ggplot2::theme( 
+      strip.text   = element_text(size=8, face="bold"),
+      strip.text.x = element_text(margin = margin(3, 0, 1.5, 0)), 
+      strip.text.y = element_text(margin = margin(0, 3, 0, 3)),
+      # strip.background = element_rect(fill = "#efefef", color = "#2a3132"),
+      strip.background   = element_blank()
+    ) +
+    
+    ## Format the grid
+    ggplot2::theme(
+      #        panel.grid.major=element_line(color=color.grid.major,size=.50)) +
+      #        panel.grid.minor=element_line(color=color.grid.minor,size=.50)) +
+      #panel.spacing      = unit(1, "pt") #3
+    ) +
+    
+    # Format plot title and margin  
+    ggplot2::theme(  
+      plot.title = element_text(size=10, color=color.title),
+      # plot.title = element_text(size=12, color=color.title, family = "Futura-Book"),
+      # plot.margin = unit(c(0.35, 0.3, 0.35, 0.35), "cm"),
+      plot.margin = margin(1, 1, 1, 1) #3
+      
+    )
+}
+
+microbiotaA.colors <- c("#6d65a5", "#332288")
+microbiotaB.colors <- c("#7f7f7f", "#aaaaaa")
+microbiotaC.colors <- c("#CC6677", "#dda4b0")
+microbiotaD.colors <- c("#579CC7", "#8dc1db")
+
+
+```
+
+```{r}
+
+p.M01A <- ggplot(humanmousePCOAlessthan30meta, aes(x=V1, y=V2, color=Dominant_genus)) +
+  geom_point(size=0.5) + #size=1
+  theme_plot() +
+  theme(
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    axis.line.x = element_blank(),
+    axis.line.y = element_blank()
+    ) +
+  scale_color_manual(values=genuscolors) +
+  geom_point(data = subset(humanmousePCOAlessthan30meta, Microbiota %in% c("A", "B", "C","D")), size=5, shape=1, color="black")+
+  ylab("PCO2 (16%)") +
+  xlab("PCO1 (22%)") +
+  labs(color="Dominant genus") +
+  coord_fixed(ratio=0.73)
+
+print(p.M01A)
+ggsave(p.M01A, file="figures_new/M01A-humanmicrobiotalessthan30mousemicrobiota.pdf", height=2.5)
+
+```
+
+```{r}
+###-Figure 2A-------------------------------------------------------------------
+
+p.M02a <- ggplot(MicroABCDlongfamilyINOCDOL10aveother, aes(uniqID, normalabundance, fill=taxa)) +
+  geom_bar(stat = "identity", position="stack") +
+  theme_plot() +
+  theme(
+    #axis.text.x = element_text(angle = 90, hjust = 1),
+    axis.title.x = element_blank()
+    ) +
+  scale_x_discrete(limits=c("A_INOC","10_A","B_INOC","10_B","C_INOC","10_C","D_INOC","10_D"),
+                   # labels=c("A_INOC"="A INOC", "10_A"="A DOL 10", "B_INOC"="B INOC", "10_B"="B DOL 10",
+                   #          "C_INOC"="C INOC", "10_C"="C DOL 10","D_INOC"="D INOC", "10_D"="D DOL 10"),
+                   labels=c("A_INOC"="INOC", "10_A"="DOL 10", "B_INOC"="INOC", "10_B"="DOL 10",
+                            "C_INOC"="INOC", "10_C"="DOL 10","D_INOC"="INOC", "10_D"="DOL 10"),
+                   ) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  ylab("Average relative abundance") +
+  labs(fill="Family") +
+  scale_fill_manual(values=familycolors)
+
+print(p.M02a)
+ggsave(p.M02a, file="figures_new/M02A-MicroABCDINOCDOL10averageabundancefamilyreorder.pdf", height=2, width=4.75)
+
+```
+
+```{r}
+# #names(DF_widemetaspeciesinocDOL10A)[names(DF_widemetaspeciesinocDOL10A) == 'uniqID'] <- 'Inoculum'
+# #names(DF_widemetaspeciesinocDOL10A)[names(DF_widemetaspeciesinocDOL10A) == 'A_10'] <- 'Pup'
+# 
+# p.M02A <- ggplot(DF_widemetaspeciesinocDOL10A, aes(x=uniqID, y=speciesrichness, fill=DOL)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   geom_point(size=1, position = position_jitterdodge(jitter.width = 0.5))+
+#   #xlab("microbiota")+
+#   ylab("Richness") +
+#   theme_plot() +
+#   theme(legend.position="none",
+#         axis.title.x = element_blank()
+#         ) +
+#   #scale_fill_manual(values=microbiotaA.colors) +
+#   scale_x_discrete(limits=c("A_INOC","A_10"), labels = c("A_INOC" = "Inoculum", "A_10" = "Pup DOL 10")) +
+#   scale_y_continuous(expand = c(0, 0), limits = c(0, max(DF_widemetaspeciesinocDOL10A$speciesrichness) * 1.05))
+# 
+# print(p.M02A)
+# ggsave(file="figures/M02A-MicroAinocDOL10richness.pdf", height=1.5, width=1.5)
+
+```
+
+```{r}
+# ###-Figure 2B-------------------------------------------------------------------
+# p.M02b <- ggplot(DF_widemetaspeciesinocDOL10A, aes(x=uniqID, y=shannon, fill=DOL)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   geom_point(size=1, position = position_jitterdodge(jitter.width = 0.5)) +
+#   #ggtitle("Shannon Diversity") +
+#   #xlab("microbiota") +
+#   ylab("Shannon Diversity") +
+#   theme_plot() +
+#   theme(legend.position="none",
+#         axis.title.x = element_blank()
+#         ) +
+#   scale_x_discrete(limits=c("A_INOC","A_10"), labels = c("A_INOC" = "Inoculum", "A_10" = "Pup DOL 10")) +
+#   scale_y_continuous(expand = c(0, 0), limits = c(0, max(DF_widemetaspeciesinocDOL10A$shannon) * 1.05))
+# 
+# print(p.M02b)
+# ggsave(file="figures/M02B-MicroAinocDOL10Shannon.pdf", height=1.5, width=1.5)
+
+```
+
+```{r}
+# ###-Figure 2C-------------------------------------------------------------------
+# 
+# p.M02c <- ggplot(MicroAlongDOL10INOCgenusaveOTHER, aes(DOL, normalabundance, fill=taxa)) +
+#   geom_bar(stat = "identity", position="stack") +
+#   #facet_grid(cols = vars(Microbiota)) +
+#   scale_x_discrete(limits=c("INOC", "10"))+
+#   theme_plot() +
+#   theme(
+#     axis.title.x = element_blank()
+#         ) +
+#   ylab("Average relative abundance") +
+#   labs(fill="Genus") +
+#   scale_fill_manual(values=genuscolors) +
+#   scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+#   scale_x_discrete(limits=c("INOC", "10"), labels=c("INOC" = "Inoculum", "10" = "Pup DOL 10"))
+# 
+# print(p.M02c)
+# ggsave(file="figures/M02C-MicroAINOCDOL10averageabundancegenus.pdf", height=2, width=2)
+
+```
+
+```{r}
+###-Figure 2G-------------------------------------------------------------------
+p.M02g <- ggplot(MicroAlonggenusbeforeduringafteraveother, aes(uniqID, normalabundance, fill=taxa)) +
+  geom_bar(stat = "identity", position="stack")+
+  theme_plot() +
+  theme(
+    axis.title.x = element_blank()
+    #, axis.text.x = element_text(angle = 90, hjust = 1)
+        ) +
+  ylab("Average relative abundance") +
+  labs(fill="Genus") +
+  scale_x_discrete(limits=c("afterPBS_A","afterpro_A","afteramp_A","afterampgent_A","aftermero_A"),
+                   labels=c("PBS", "Probenecid", "Ampicillin/probenecid", "Ampicillin/gentamicin/probenecid", "Meropenem/probenecid")) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  scale_fill_manual(values=genuscolors)
+
+print(p.M02g)
+ggsave(p.M02g, file="figures_new/M02G-250819_microAafterOTHER.pdf", height=2, width=3.6)
+
+```
+
+```{r}
+# ###-Figure 3A-------------------------------------------------------------------
+# p.M03a <- ggplot(DF_widemetaspeciesinocDOL10B, aes(x=uniqID, y=speciesrichness, color=DOL)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   geom_point(position = position_jitterdodge(jitter.width = 0.1)) +
+#   ggtitle("Richness")+xlab("microbiota") +
+#   ylab("Richness") +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   theme(axis.text.x = element_text(size=16), axis.title.x=element_text(size=20), axis.title.y = element_text(size=20), axis.text.y = element_text(size=16), axis.title = element_text(size=24)) +
+#   scale_x_discrete(limits=c("B_INOC","B_10")) +
+#   my_theme()
+# 
+# print(p.M03a)
+# ggsave(file="figures_new/250624_MicroBinocDOL10richness.pdf")
+
+```
+
+```{r}
+# ###-Figure 3B-------------------------------------------------------------------
+# ggplot(DF_widemetaspeciesinocDOL10B, aes(x=uniqID, y=shannon, color=DOL)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.1))+ ggtitle("Shannon Diversity")+xlab("microbiota")+ylab("Shannon Diversity") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.text.x = element_text(size=16), axis.title.x=element_text(size=20), axis.title.y = element_text(size=20), axis.text.y = element_text(size=16), axis.title = element_text(size=24))+scale_x_discrete(limits=c("B_INOC","B_10"))+my_theme()
+# ggsave(file="figures/250624_MicroBinocDOL10Shannon.pdf")
+
+```
+
+```{r}
+###-Figure 3C-------------------------------------------------------------------
+# ggplot(MicroBlongDOL10INOCgenusaveOTHER, aes(DOL, normalabundance, fill=taxa)) + geom_bar(stat = "identity", position="stack")+ facet_grid(cols = vars(Microbiota))+scale_x_discrete(limits=c("INOC", "10"))+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+scale_fill_manual(values=genuscolors)
+# ggsave(file="figures/250819_MicroBINOCDOL10averageabundancegenus.pdf")
+
+```
+
+```{r}
+###-Figure 3C-------------------------------------------------------------------
+p.M03c <- ggplot(MicroBlongduringaftergenusvancmeroproLIVEDEAD, aes(Survived, normalabundance, fill=taxa)) + 
+  geom_bar(stat = "identity", position="stack") + 
+  theme_plot() +
+  theme(
+    axis.title.x = element_blank()
+  ) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  ylab("Average relative abundance") +
+  labs(fill="Genus") +
+  scale_x_discrete(labels=c("no"="Died", "yes"="Survived"))+
+  scale_fill_manual(values=genuscolors)
+
+print(p.M03c)
+ggsave(p.M03c, file="figures_new/M03C-microBduringafteraveothermerovancpro.pdf", height=2, width=3)
+
+```
+
+```{r}
+###-Figure 3F-------------------------------------------------------------------
+#MicroABCDduringaftermeroaveother.new <- MicroABCDduringaftermeroaveother[MicroABCDduringaftermeroaveother$taxa != "Mycobacteriaceae", ]
+
+p.M03f <- ggplot(MicroABCDduringaftermeroaveother, aes(Microbiota, normalabundance, fill=taxa)) + 
+  geom_bar(stat = "identity", position="stack") + 
+  theme_plot() +
+  theme(
+    axis.title.x = element_blank()
+  ) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  ylab("Average relative abundance") +
+  labs(fill="Family") +
+  scale_x_discrete(limits=c("A","B","C","D")) + 
+  scale_fill_manual(values=familycolors)
+
+print(p.M03f)
+ggsave(p.M03f, file="figures_new/M03F_MicroABCDduringaftermeroaverageabundancefamily.pdf", height=2, width=3.3)
+
+```
+
+
+
+
+
+```{r}
+###-Figure 5A-------------------------------------------------------------------
+p.M05A <- ggplot(MicroABandABmixlongfamilyINOC, aes(uniqID, normalabundance, fill=taxa)) + 
+  geom_bar(stat = "identity", position="stack") + 
+  theme_plot() +
+  theme(
+    axis.title.x = element_blank()
+  ) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  ylab("Average relative abundance") +
+  labs(fill="Family") +
+  scale_x_discrete(limits=c("A_INOC","AB_INOC","B_INOC"),
+                   labels=c("A_INOC"="A", "AB_INOC"="AB", "B_INOC"="B")) + 
+  scale_fill_manual(values=familycolors)
+
+print(p.M05A)
+ggsave(p.M05A, file="figures_new/M05A-MicroABCDINOCDOL10averageabundancefamily.pdf", height=2, width=2.9)
+
+
+```
+
+```{r}
+###-Figure 5B-------------------------------------------------------------------
+p.M05b <- ggplot(MicroABlonggenusDOL10aveother, aes(uniqID, normalabundance, fill=taxa)) + 
+  geom_bar(stat = "identity", position="stack") + 
+  theme_plot() +
+  theme(
+    axis.title.x = element_blank()
+  ) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  ylab("Average relative abundance") +
+  labs(fill="Genus") +
+  scale_x_discrete(labels=c("AB_10"="Microbiota AB mix")) +
+  scale_fill_manual(values=genuscolors)
+
+print(p.M05b)
+ggsave(p.M05b, file="figures_new/M05B-MicroABDOL10averageabundancegenus.pdf", height=2, width=2)
+
+```
+
+```{r}
+###-Figure 5D-------------------------------------------------------------------
+p.M05d <- ggplot(MicroABlonggenusbeforemeroLIVEDEAD, aes(uniqID, normalabundance, fill=taxa)) + 
+  geom_bar(stat = "identity", position="stack") + 
+  theme_plot() +
+  theme(
+    axis.title.x = element_blank()
+  ) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  ylab("Average relative abundance") +
+  labs(fill="Genus") +
+  scale_x_discrete(labels=c("beforemero_no"="Died", "beforemero_yes"="Survived")) +
+  scale_fill_manual(values=genuscolors)
+
+print(p.M05d)
+ggsave(p.M05d, file="figures_new/M05D-MicroABDOL10beforemeroLIVEDEADaverageabundancegenus.pdf", height=2, width=2.9)
+
+```
+
+```{r}
+###-Figure 5F-------------------------------------------------------------------
+p.M05f <- ggplot(MicroABlonggenusaftermerovancaveOTHER, aes(uniqID, normalabundance, fill=taxa)) + 
+  geom_bar(stat = "identity", position="stack") + 
+  theme_plot() +
+  theme(
+    axis.title.x = element_blank()
+  ) + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
+  ylab("Average relative abundance") +
+  labs(fill="Genus") +
+  scale_x_discrete(labels=c("AB_aftermero"="Meropenem/probenecid", "AB_aftervanc"="Vancomycin/probenecid")) +
+  scale_fill_manual(values=genuscolors)
+
+print(p.M05f)
+ggsave(p.M05f, file="figures_new/M05F-MicroABmixaftervancmeroaverageabundancegenus.pdf", height=2, width=2.9)
+
+```
+
+```{r}
+###-Extended Figure 1A----------------------------------------------------------
+ggplot(MicroAwidespeciesINOCadultsbeforebirth, aes(x=Collection, y=speciesrichness, color=Adult)) + geom_point(position = position_jitterdodge()) +geom_smooth()+ ggtitle("Microbiota A Richness")+xlab("Days after gavage")+ylab("Richness") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+my_theme()
+ggsave(file="figures/250318_MicroAINOCadultsRichness.pdf")
+
+###-Extended Figure 1B----------------------------------------------------------
+ggplot(MicroAwidespeciesINOCadultsbeforebirth, aes(x=Collection, y=shannon, color=Adult)) + geom_point(position = position_jitterdodge()) +geom_smooth()+ ggtitle("Microbiota A Shannon Diversity")+xlab("Days after gavage")+ylab("Shannon Diversity") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+my_theme()
+ggsave(file="figures/250318_MicroAINOCadultsShannon.pdf")
+
+###-Extended Figure 1C----------------------------------------------------------
+ggplot(MicroAlongenusINOCadultsother, aes(type, normalabundance, fill=taxa)) + geom_bar(stat = "identity", position="stack")+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+scale_fill_manual(values=genuscolors)+scale_x_discrete(limits=c("INOC","Adult"))
+ggsave(file="figures/250819_MicroAadultInocaverageabundancegenus.pdf")
+
+###-Extended Figure 2D----------------------------------------------------------
+ggplot(ShortbredmetadataBetamicroA, aes(x=Abx_relativeinfxn, y=Sum, color=Abx_relativeinfxn)) + geom_boxplot(outlier.shape = NA) +geom_point(position = position_jitterdodge(jitter.width = 0.5)) +ggtitle("Beta lactam ARGs")+xlab("Timepoint")+ylab("total beta lactam ARGs RPKM/sample") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+theme(axis.text.x = element_text(size=16), axis.title.x=element_text(size=20), axis.title.y = element_text(size=20), axis.text.y = element_text(size=16), axis.title = element_text(size=24))+scale_x_discrete(limits=c("afteramp","aftermero"))
+ggsave(file="figures/250514_BetaLactammicroAafterampmerp.pdf")
+
+###-Extended Figure  4----------------------------------------------------------
+a<-ggplot(BrayDFABCDmeta, aes(x=V1, y=V2, color=Microbiota, shape=as.factor(Tissue))) + geom_point(size=2)+
+  theme_bw()+theme(legend.text=element_text(size=12, face="bold"),legend.title=element_text(size=14, face="bold"),
+        panel.grid.minor = element_blank(), panel.border = element_rect(colour = "black"), 
+        axis.text.x= element_text(size=12,angle=45,hjust=1,vjust=1,face="bold"),
+        axis.text.y= element_text(size=12,face="bold"))+
+  ylab("PCO2 (21.5%)")+
+  xlab("PCO1 (28.5%)") 
+ggMarginal(a, type="boxplot", groupColour = TRUE, groupFill = TRUE, size = 5)
+ggsave(file="figures/251016_BrayPCoAABCD.pdf") 
+
+###-Extended Figure 6B----------------------------------------------------------
+b<-ggplot(BrayABDFDmeta, aes(x=V1, y=V2, color=Microbiota)) + geom_point(size=2)+
+  theme_bw()+theme(legend.text=element_text(size=12, face="bold"),legend.title=element_text(size=14, face="bold"),
+        panel.grid.minor = element_blank(), panel.border = element_rect(colour = "black"), 
+        axis.text.x= element_text(size=12,angle=45,hjust=1,vjust=1,face="bold"),
+        axis.text.y= element_text(size=12,face="bold"))+
+  ylab("PCO2 (22%)")+
+  xlab("PCO1 (34%)") 
+ggMarginal(b, type="boxplot", groupColour = FALSE, groupFill = TRUE, size = 5)
+ggsave(file="figures/251212_BrayPCoAABvsAB.pdf") 
+
+```

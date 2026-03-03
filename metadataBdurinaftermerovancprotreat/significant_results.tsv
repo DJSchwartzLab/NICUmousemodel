@@ -1,0 +1,2 @@
+"feature"	"metadata"	"value"	"name"	"coef"	"null_hypothesis"	"stderr"	"pval_individual"	"qval_individual"	"pval_joint"	"qval_joint"	"error"	"model"	"N"	"N_not_zero"
+"Enterococcus"	"Survived"	"yes"	"Survivedyes"	-2.30110308929862	1.03947349806927	0.879662663854332	0.00374189498610955	0.033677054874986	0.00374189498610955	0.033677054874986	NA	"abundance"	125	78

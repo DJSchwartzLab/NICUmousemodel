@@ -1,0 +1,14 @@
+"feature"	"metadata"	"value"	"name"	"coef"	"null_hypothesis"	"stderr"	"pval_individual"	"qval_individual"	"pval_joint"	"qval_joint"	"error"	"model"	"N"	"N_not_zero"
+"Enterococcus"	"Survived"	"yes"	"Survivedyes"	-2.30110308929862	1.03947349806927	0.879662663854332	0.00374189498610955	0.033677054874986	0.00374189498610955	0.033677054874986	NA	"abundance"	125	78
+"Klebsiella"	"Survived"	"yes"	"Survivedyes"	-0.38007464135054	1.03947349806927	0.790339011871909	0.157237504515918	0.516943877650822	0.157237504515918	0.516943877650822	NA	"abundance"	125	73
+"Clostridium"	"Survived"	"yes"	"Survivedyes"	2.63938750861747	1.03947349806927	0.967173096231522	0.172314625883607	0.516943877650822	0.172314625883607	0.516943877650822	NA	"abundance"	125	64
+"Escherichia"	"Survived"	"yes"	"Survivedyes"	0.0457297436895426	1.03947349806927	0.682832971095294	0.26392167503192	0.593823768821819	0.26392167503192	0.593823768821819	NA	"abundance"	125	90
+"Citrobacter"	"Survived"	"yes"	"Survivedyes"	0.102128407079212	1.03947349806927	1.22583387317947	0.446426177092416	0.736414365963812	0.446426177092416	0.736414365963812	NA	"abundance"	125	63
+"Finegoldia"	"Survived"	"yes"	"Survivedyes"	2.91566378862338	1.03947349806927	2.83570333054178	0.523988547691994	0.736414365963812	0.523988547691994	0.736414365963812	NA	"abundance"	125	7
+"Veillonella"	"Survived"	"yes"	"Survivedyes"	1.84956289803473	1.03947349806927	1.34458514233449	0.572766729082965	0.736414365963812	0.572766729082965	0.736414365963812	NA	"abundance"	125	8
+"Bifidobacterium"	"Survived"	"yes"	"Survivedyes"	1.71938774089556	1.03947349806927	1.59572081293091	0.663416023303583	0.746343026216531	0.663416023303583	0.746343026216531	NA	"abundance"	125	49
+"Clostridioides"	"Survived"	"yes"	"Survivedyes"	1.03947349806927	1.03947349806927	0.94337387895586	1	1	1	1	NA	"abundance"	125	64
+"Erysipelatoclostridium"	"Survived"	"yes"	"Survivedyes"	NA	NA	NA	NA	NA	NA	NA	"No data points have the baseline factor level"	"abundance"	125	3
+"Varibaculum"	"Survived"	"yes"	"Survivedyes"	NA	NA	NA	NA	NA	NA	NA	"No data points have the baseline factor level"	"abundance"	125	2
+"Morganella"	"Survived"	"yes"	"Survivedyes"	NA	NA	NA	NA	NA	NA	NA	"No data points have the baseline factor level"	"abundance"	125	40
+"Cutibacterium"	"Survived"	"yes"	"Survivedyes"	NA	NA	NA	NA	NA	NA	NA	"No data points have the baseline factor level"	"abundance"	125	3

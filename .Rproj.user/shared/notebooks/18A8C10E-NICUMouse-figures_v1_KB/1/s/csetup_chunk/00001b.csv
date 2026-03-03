@@ -1,0 +1,8 @@
+"0","source(""MasterNICUMousemetaphlan_v3_KB.r"")
+"
+"2","Error in source(""MasterNICUMousemetaphlan_v3_KB.r"") : 
+  MasterNICUMousemetaphlan_v3_KB.r:2384:2: unexpected symbol
+2383: MicroABCDDOL10INOCMeta<-subset(DF_widemetaspecies, Microbiota==""A""|Microbiota==""B""|Microbiota==""C""|Microbiota==""D"")
+2384: 0MicroABCDDOL10INOCMeta
+       ^
+"

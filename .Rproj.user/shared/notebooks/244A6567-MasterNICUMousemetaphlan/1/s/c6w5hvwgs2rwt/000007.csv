@@ -1,0 +1,7 @@
+"0","ggplot(MicroAwidegenuspupINOC10, aes(x=DOL, y=genusrichness, color=DOL))+geom_boxplot()+geom_point(position = position_jitterdodge())+ ggtitle(""Microbiota A Richness"")+xlab(""pup day of life"")+ylab(""# of genera"") + theme(axis.text.x = element_text(angle = 45, hjust = 1))+my_theme()+scale_color_brewer(palette = ""Dark2"")+scale_x_discrete(limits=c(""0"",""10""))+stat_compare_means(aes(color=DOL))
+"
+"1","[1m[33mError[39m in `scale_color_brewer()`:[22m
+[38;5;232m[33m![38;5;232m Continuous value supplied to a discrete scale.
+[36mℹ[38;5;232m Example values: [34m10[38;5;232m and [34m0[38;5;232m.[39m
+[90mRun `]8;;x-r-run:rlang::last_trace()rlang::last_trace()]8;;` to see where the error occurred.[39m
+"

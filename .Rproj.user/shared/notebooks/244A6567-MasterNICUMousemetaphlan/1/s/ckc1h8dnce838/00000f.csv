@@ -1,0 +1,4 @@
+"0","ggplot(MicroAlongINOCspeciesave, aes(Abx_relativeinfxn, normalabundance, fill=taxa)) + geom_bar(stat = ""identity"", position=""stack"")+ facet_grid(cols = vars(Microbiota))+scale_x_discrete(limits=c(""INOC""))+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+scale_fill_manual(values=mycolors)
+"
+"2","Error: object 'mycolors' not found
+"
